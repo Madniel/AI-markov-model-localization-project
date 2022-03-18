@@ -1,95 +1,97 @@
-# Lokalizacja - Raport
+# Location - Project
 
-Poniżej znajduje się raport opisujący działanie programu. Raport został podzielony na dwie częsci: Obliczanie rozkładu lokalizacji robota i Heurystykę
+Below is a report that describes how the program works. The report is divided into two parts: Calculating the robot's location distribution and Heuristics.
 
-##Obliczanie rozkładu lokalizacji robota
+## Calculating the robot location distribution
 
-Do obliczenia rozkładu lokalizacji robota wykorzystywane są trzy macierze:
+Three matrices are used to calculate the robot location distribution:
 
-T - macierz przejścia 
+T - the transition matrix 
 
-O - macierz zawierająca pomiary z sensora
+O - matrix containing sensor measurements
 
-P - macierz rozkładu położenia robota
+P - the robot's location distribution matrix
 
-Cały proces jest oparty o aktualizowanie macierzy P za pomoca mnożenia jej przez czynnik przejścia a potem macierz O
+The whole process is based on updating the P matrix by multiplying it by the transition factor and then the O matrix
 
-##Macierz P
+## P matrix
 
-Macierz P składa się z 42 wektorów po 4 wartości. Wektory reprezentują wolne miejsca (których jest 42), a wartości poszczególne orientacje. 
-Początkowo wszystkie lokacje posiadają jednakowe prawdopodobieństwo równe 1/42 * 1/4. 
+The P matrix consists of 42 vectors with 4 values each. The vectors represent free locations (of which there are 42) and the values represent individual orientations. 
+Initially, all locations have equal probability equal to 1/42 * 1/4. 
 
-##Macierz T
+## T matrix
 
-Macierz T ma rozmiar 42x42x4x4. Jest to związane, z tym, że dla czterech orientacji pod uwagę trzeba wziąć wszystkie mozliwe sytuacje. 
-Orientacje w wektorze umiejscawiane są zgodnie z kolejnością ['N','E','S','W']
+The matrix T has size 42x42x4x4. This is due to the fact that for four orientations all possible situations must be taken into account. 
+Orientations in the vector are placed according to the order ['N','E','S','W'].
 
-Jeśli w zbiorze percept wykryto wykryto "bump" (robot uderzył w ściane) to dla każdej lokacji tworzona jest macierz jednostkowa,
-ponieważ robot na 100% (czyli 1.0) zostanie w danym miejscu w danej orientacji.
+If in the set of percepts a "bump" was detected (the robot hit the wall), a unitary matrix is created for each location,
+because the robot will 100% (i.e., 1.0) stay at a given location in a given orientation.
 
-W przypadku skrętu w prawo w wektorze w miejsce danego kierunku wpisujemy 0.05 a dla kierunku po prawej 0.95 
-np. dla orientacji N wynosi --> [0.05, 0.95 ,0 ,0], a dla S --> [0 ,0,0.05, 0.95]. 
+In the case of a right turn in the vector in place of the direction we write 0.05 and for the direction to the right 0.95 
+e.g., for orientation N is --> [0.05, 0.95 ,0 ,0] and for orientation S is --> [0 ,0,0.05, 0.95]. 
 
-W podobny sposób robimy w przypadku skrętu w lewo. Zmieniamy tylko miejsca dla wartości (zamiast [0 ,0,0.05, 0.95] na [0 ,0.95,0.05,0]).
+We do in a similar way for a left turn. We just change the locations for the values (instead of [0 ,0,0.05, 0.95] to [0 ,0.95,0.05,0]).
 
-Dla ruchu do przodu do każdej lokacji tworzona jest lista lokacji sąsiadujących. Następnie sprawdzane jest czy sąsiedzi są ścianą.
-Jesli dany sąsiad nie jest ścianą to dla każdej lokacji tworzona jest macierz równa macierzy jednostkowej przemnożonej razy 0.05.
-Wynika to z tego, że  istnieje 0.05 prawdopodobienstwa, że robot zostanie na danym miejscu w danej orientacji.
-Następnie dla kolejnej lokacji tworzona jest macierz równa macierzy jednostkowej przemnożonej razy 0.95.
-Wynika to z tego, że  istnieje 0.95 prawdopodobienstwa, że robot przeniesie się na dane miejsce w niezmiennej orientacji.
-Tak dla każdego miejsca powstaje macierz 4x4
-Jeśli sąsiad jest ścianą to na miejsce orientacji w danym wektorze wpisywana jest wartość 1.
+For forward movement to each location, a list of neighboring locations is created. Then it is checked if the neighbors are walls.
+If a given neighbor is not a wall then for each location a matrix is created equal to the unitary matrix multiplied by 0.05.
+This results from the fact that there is 0.05 probability that the robot will stay in a given location in a given orientation.
+Then, for the next location, a matrix is created equal to the unitary matrix multiplied by 0.95.
+This results from the fact that there is 0.95 probability that the robot will move to a given location in an unchanging orientation.
+Thus for each place is formed matrix 4x4
+If the neighbor is a wall then on the place of the orientation in the given vector is written the value 1.
+*** Translated with www.DeepL.com/Translator (free version) ***
 
-##Macierz 0
+## Matrix 0
 
-Macierz O ma rozmiar 42x4. Dla każdego położenia jest tworzony wektor 4 elementowy.
-Każdy element w tym wektorze określa prawdopodobieństwo dla poszczególnej orientacji robota.
-Tworzone jest pięć list. Pierwsze cztery to listy dla poszczególnych przypadków położenia robota. Sąsiedzi danej lokacji są w nich umiejscawiani w innych kolejnosciach 
+The matrix O has a size of 42x4. A 4 element vector is created for each position.
+Each element in this vector defines a probability for a particular orientation of the robot.
+Five lists are created. The first four are lists for each instance of the robot's location. Neighbors of a given location are placed in these lists in different order 
 ([N,E,S,W], [E,S,W,N], [S,W,N,E], [W,N,E,S])
 
-Piąta lista natomiast to zbiór wszystkich tych list.
-Pętla for sprawdza każdą orientacje i jeśli sensor poprawnie określił położenie ścian to mnoży zmienną tymaczasową "a" 
-(z wartością początkową 1.0) razy 0.9,a jeśli źle to 0.1.
-Jeśli wystąpi 'bump' w 'percept' to wówczas dla orientacji 'fwd' mnoży się zmienną 'a' razy 1.0. 
+The fifth list, on the other hand, is the collection of all these lists.
+The for loop checks each orientation and if the sensor has correctly determined the position of the walls, it multiplies the timestamp variable "a" 
+(with initial value 1.0) times 0.9,and if wrong then 0.1.
+If there is a 'bump' in 'percept' then for the orientation 'fwd' it multiplies the variable 'a' times 1.0. 
 
-Cykl ten jest powtarzany dla wszystkich list i wyniki (wartości zmiennej 'a') zapisywane są w wektorze. 
+This cycle is repeated for all lists and the results (values of variable 'a') are stored in a vector. 
 
-Powtarzane jest to dla wszystkich lokacji więc otrzymujemy macierz 42x4.
+This is repeated for all locations so we get a 42x4 matrix.
 
-##Mnożenie macierzy
+## Multiplication of matrix
 
-Na samym początku wykonujemy mnożenie macierzy T i P. 
+At the very beginning we perform the multiplication of matrices T and P. 
 
-Macierz T transponujemy, ponieważ wiersze muszą odpowiadać następnym stanom. W oryginalny T wiersze odpowiadają obecnym stanom.
+We transpose the matrix T because the rows must correspond to the next states. In the original T, the rows correspond to the current states.
 
-Mnożenie T i P polega na mnożeniu macierzowym kolejnych macierzy danego stanu przez kolejne wiersze macierzy P.
-Wynikowe wektory są dodawane do siebie i zapisywane jak wektor macierzy P dla danego stanu
+The multiplication of T and P consists in matrix multiplication of successive matrices of a given state by successive rows of the matrix P.
+The resulting vectors are added together and written as the matrix vector P for a given state
 
-Następnie każdy element macierzy P jest przemnażany przez każdy element macierzy O.
+Then each element of the matrix P is multiplied by each element of the matrix O.
 
-Na samym końcu normalizujemy macierz P tak, by suma elementów w macierzy wynosiła łącznie 1.
+At the very end, we normalize the matrix P so that the sum of the elements in the matrix totals 1.
 
-##Heurystyka
+## Heuristics
 
-Heurystyka jest oparta na zasadzie poruszania się robotem jak najczęsściej do przodu.
-W ten sposób robot najszybciej dokunuje zbieżności algorytmu i oblicza prawdopodobieństwo swego położenia i orientacji.
+Heuristics are based on the principle of moving the robot forward as often as possible.
+In this way, the robot converges fastest to the algorithm and calculates the probability of its position and orientation.
 
-Heurystyka dzieli się na 3 podpunkty.
+Heuristics are divided into 3 subsections.
 
-Na samym początku sprawdzane jest czy robot nie wpadł w ścianę. Jeśli nie występują ściany bądź ściany występują zarówno po lewej jak i prawej
-wówczas robot losowo obraca się w lewo lub prawo (szansa na obrót w jedną ze stron wynosi 50% na 50%). Jeśli natomiast obok robota znajduje się jedna ściana
-to robot obraca się przeciwnie do niej. 
+At the very beginning it is checked if the robot has not run into a wall. If there are no walls, or if there are walls on both left and right sides
+then the robot randomly rotates to the left or right (50% chance to rotate in one direction is 50%). On the other hand, if there is a wall next to the robot
+then the robot rotates opposite to it. 
 
-Jeśli robot nie wpadł w ściane ,a przeszkoda zostanie wykryta z przodu to najpierw zostaje sprawdzone czy ściana występują  tylko po lewej lub po prawej stronie. 
-Agent wbiera wtedy zwrot w przeciwną stronę. Jeśli ściany występują po bokach robota to zwrot określany jest na podstawie poprzedniego ruchu. 
-Jeśli był to skręt w lewo/prawo robot powtarza czynność. Jeśli nie, robot zmierza do przodu.
+If the robot has not run into a wall, and an obstacle is detected in front, it is first checked if the wall is only on the left or right side. 
+The agent then turns to the opposite side. If walls are on the sides of the robot, the turn is determined based on the previous move. 
+If it was a left/right turn, the robot repeats the action. If not, the robot moves forward.
 
-Jeśli z przodu nie ma ściany to obrót robota zależy od trzech cznników. 
-Jeśli sensor wykrywa tylko jedną ściane, ma pozwolenie na obrót oraz poprzednim jego ruchem nie był obrót to może wykonać zwrot w lewo lub prawo.
-Zależne jest to od tego po której stronie znajduje się ściana. Pozwolenie na ruch zostaje nadane wraz
-inicjalizacją programu oraz w momencie ruchu robota do przodu. Jeśli robot wykona zwrot w któryms kierunku następuje odebranie pozwolenia aż do momentu ruchu do przodu.
-Jeśli warunki zostaną spełnione wówczas ruch jest losowo wybierany z zbioru ['forward' , 'turnleft/turnroght'] z prawdopodobieństwem [0.6,0.4]. 
-Umożliwia to robotowi wyjście z części korytarza w kształcie "T". Jednocześnie jednak wciaż kładzony jest nacisk na ruch do przodu.
-Jeśli robot nie może wykonać ruchu w prawo/lewo następuje ruch do przodu.
+If there is no wall in front, the robot's rotation depends on three factors. 
+If the sensor detects only one wall, the robot is allowed to turn, and its previous move was not a turn, it can turn left or right.
+This depends on which side of the wall is located. The permission to move is given at
+The motion permission is given at program initialization and when the robot moves forward. If the robot makes a turn in either direction, permission is revoked until the robot moves forward.
+If the conditions are met, the move is randomly selected from the set ['forward' , 'turnleft/turnroght'] with probability [0.6,0.4]. 
+This allows the robot to exit the 'T' shaped part of the corridor. At the same time, however, emphasis is still placed on forward motion.
+If the robot cannot move right/left, it moves forward.
 
-# Localization-project
+
+
