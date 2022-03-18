@@ -14,12 +14,12 @@ P - macierz rozkładu położenia robota
 
 Cały proces jest oparty o aktualizowanie macierzy P za pomoca mnożenia jej przez czynnik przejścia a potem macierz O
 
-###Macierz P
+##Macierz P
 
 Macierz P składa się z 42 wektorów po 4 wartości. Wektory reprezentują wolne miejsca (których jest 42), a wartości poszczególne orientacje. 
 Początkowo wszystkie lokacje posiadają jednakowe prawdopodobieństwo równe 1/42 * 1/4. 
 
-###Macierz T
+##Macierz T
 
 Macierz T ma rozmiar 42x42x4x4. Jest to związane, z tym, że dla czterech orientacji pod uwagę trzeba wziąć wszystkie mozliwe sytuacje. 
 Orientacje w wektorze umiejscawiane są zgodnie z kolejnością ['N','E','S','W']
@@ -40,7 +40,7 @@ Wynika to z tego, że  istnieje 0.95 prawdopodobienstwa, że robot przeniesie si
 Tak dla każdego miejsca powstaje macierz 4x4
 Jeśli sąsiad jest ścianą to na miejsce orientacji w danym wektorze wpisywana jest wartość 1.
 
-###Macierz 0
+##Macierz 0
 
 Macierz O ma rozmiar 42x4. Dla każdego położenia jest tworzony wektor 4 elementowy.
 Każdy element w tym wektorze określa prawdopodobieństwo dla poszczególnej orientacji robota.
@@ -56,7 +56,7 @@ Cykl ten jest powtarzany dla wszystkich list i wyniki (wartości zmiennej 'a') z
 
 Powtarzane jest to dla wszystkich lokacji więc otrzymujemy macierz 42x4.
 
-###Mnożenie macierzy
+##Mnożenie macierzy
 
 Na samym początku wykonujemy mnożenie macierzy T i P. 
 
