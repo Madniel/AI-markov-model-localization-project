@@ -39,7 +39,7 @@ Then, for the next location, a matrix is created equal to the unitary matrix mul
 This results from the fact that there is 0.95 probability that the robot will move to a given location in an unchanging orientation.
 Thus for each place is formed matrix 4x4
 If the neighbor is a wall then on the place of the orientation in the given vector is written the value 1.
-*** Translated with www.DeepL.com/Translator (free version) ***
+
 
 ## Matrix 0
 
